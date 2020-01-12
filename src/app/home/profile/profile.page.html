@@ -1,0 +1,39 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="page-wrapper">
+  <div class="page__body">
+    <form #ctf="ngForm">
+      <ion-item>
+        <ion-label position="stacked">Name</ion-label>
+        <ion-input type="text" readonly [value]="userData.name"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Email</ion-label>
+        <ion-input type="text" readonly></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Public Key</ion-label>
+        <ion-input type="text" 
+          name="transId"
+          ngModel
+          transIdCtrl="ngModel"
+          required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Private Key</ion-label>
+        <ion-input type="password"
+          placeholder="*******"
+          name="pword"
+          ngModel
+          pwordCtrl="ngModel"
+          required></ion-input>
+      </ion-item>
+    </form>
+  </div>
+</ion-content>

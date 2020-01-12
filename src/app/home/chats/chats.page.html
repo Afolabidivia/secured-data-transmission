@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ userInfo?.email }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="page-wrapper">
+    <div class="messages-wrapper" *ngIf="messages">
+      <div class="message-container" *ngFor="let message of messages">
+        <div class="m-item-wrapper sender" [class.sender]="message?.sender === userData.id">
+          <div class="m-item sender" [class.sender]="message?.sender === userData?.id">{{ message.message }}</div>
+        </div>
+      </div>
+    </div>
+    <form #f="ngForm" (ngSubmit)="submitMessage(f)">
+      <ion-textarea
+        autofocus="true"
+        rows="1"
+        ngModel
+        name="chatMessage"
+        required
+        minlength="1"></ion-textarea
+         >
+      <ion-button type="submit">
+        <ion-icon name="send"></ion-icon>
+      </ion-button>
+    </form>
+  </div>
+</ion-content>

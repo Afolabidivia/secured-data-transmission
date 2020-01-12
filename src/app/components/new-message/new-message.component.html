@@ -1,0 +1,23 @@
+<ion-content class="page-wrapper" padding>
+  <form #nmf="ngForm" (ngSubmit)="onStartMessage(nmf)">
+    <ion-item>
+      <ion-label position="floating">Enter Email</ion-label>
+      <ion-input 
+        type="email"
+        ngModel
+        name="userEmail"
+        #userNameCtrl="ngModel"
+        required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Message</ion-label>
+      <ion-textarea
+        type="text"
+        ngModel
+        name="message"
+        #messageCtrl="ngModel"
+        required></ion-textarea>
+    </ion-item>
+    <ion-button type="submit" [disabled]="!nmf.valid">start</ion-button>
+  </form>
+</ion-content>

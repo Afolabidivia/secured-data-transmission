@@ -1,0 +1,51 @@
+.page-wrapper {
+    height: 100vh;
+    padding: 5px;
+    .messages-wrapper {
+        display: flex;
+        flex-direction: column;
+        .m-item-wrapper {
+            display: block;
+            font: 13px/18px Tahoma,sans-serif,Arial,Helvetica;
+            float: left;
+            position: relative;
+            margin: 8px 0 8px;
+            max-width: 100%;
+            .m-item {
+                padding: 7px 10px;
+                border-radius: 3px;
+                background: #f1f1f1;
+                display: block;
+                overflow: hidden;
+            }
+            .m-item.sender {
+                background: #e4ecf2;
+            }
+        }
+        .m-item-wrapper.sender {
+            // background: #e4ecf2;
+            padding-left: 80px;
+            padding-right: 0;
+            float: right;
+        }
+    }
+    form {
+        padding: 5px;
+        display: flex;
+        position: fixed;
+        justify-content: center;
+        align-items: center;
+        bottom: 0;
+        width: 100%;
+        ion-textarea {
+            --background: #dddddd;
+            // border: solid 1px #dddddd;
+            width: 80%;
+            margin-right: 5px;
+            border-radius: 4px;
+        }
+        ion-button {
+            margin-bottom: -2px;
+        }
+    }
+}

@@ -1,0 +1,104 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import * as firebase from 'firebase/app';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class FirebaseService {
+  public firebaseRef: firebase.database.Reference;
+  public contactRef: firebase.database.Reference;
+  public messageRef: firebase.database.Reference;
+  firebaseData = new BehaviorSubject(null);
+  userContacts = new BehaviorSubject(null);
+  messages = new BehaviorSubject(null);
+
+  constructor() { }
+
+  addUser(uid: string, userData) {
+    firebase.database().ref(`users/${uid}`).set(userData)
+      .then((data) => {
+
+      }).catch(error => {
+      });
+  }
+
+  syncContacts(user: string) {
+    this.contactRef = firebase.database().ref(`/contacts/${user}`);
+    this.contactRef.on('value', contactSnapShot => {
+      this.userContacts.next(contactSnapShot.val());
+      console.log(contactSnapShot.val());
+    });
+  }
+
+  getAllUsers() {
+    return firebase.database().ref(`/users`).once('value');
+  }
+
+  getUser(userId: string) {
+    return firebase.database().ref(`/users/${userId}`).once('value');
+  }
+
+  addContact(user, userId, payload) {
+    firebase.database().ref(`contacts/${user}/${userId}`).set(payload)
+      .then((data) => {
+      }).catch(error => {
+    });
+  }
+
+  fetchChats() {
+    return firebase.database().ref(`/chats/`).once('value');
+  }
+
+  startMessage(payload) {
+    firebase.database().ref(`/chats/`).once('value')
+      .then(chat => {
+        const chatsLen = (chat.val()) ? Object.keys(chat.val()).length + 1 : 1;
+        firebase.database().ref(`/chats/${chatsLen}`).once('value')
+          .then(m => {
+            const mCount = (m.val()) ? Object.keys(m.val()).length + 1 : 1;
+            firebase.database().ref(`chats/${chatsLen}/${mCount}`).set(payload)
+              .then((data) => {
+              }).catch(error => {
+            });
+          });
+      });
+  }
+
+  addMessage(sender: string, receiver: string, payload) {
+    firebase.database().ref(`/contacts/${sender}/${receiver}`).once('value')
+      .then(res => {
+        const chatId = res.val().chat_id;
+        firebase.database().ref(`/chats/${chatId}`).once('value')
+          .then(m => {
+            const mCount = (m.val()) ? Object.keys(m.val()).length + 1 : 1;
+            firebase.database().ref(`chats/${chatId}/${mCount}`).set(payload)
+              .then((data) => {
+                this.updateLastMessage(sender, receiver, {last_message: payload.message});
+                this.updateLastMessage(receiver, sender, {last_message: payload.message});
+              }).catch(error => {
+            });
+          });
+      });
+  }
+
+  syncMessages(chatId) {
+    this.messageRef = firebase.database().ref(`/chats/${chatId}`);
+    this.messageRef.on('value', messageSnapshot => {
+      if (messageSnapshot.val()) {
+        this.messages.next(messageSnapshot.val());
+        return;
+      }
+      this.messages.next(null);
+    });
+  }
+
+  destroyMessages() {
+    this.messageRef.off();
+  }
+
+  updateLastMessage(sender: string, receiver: string, payload) {
+    firebase.database().ref(`contacts/${sender}/${receiver}`).update(payload);
+  }
+
+}

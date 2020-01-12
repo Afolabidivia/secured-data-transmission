@@ -1,0 +1,19 @@
+.page-wrapper {
+    ion-item {
+        --padding-start: 0;
+        --pading-end: 0;
+        margin-bottom: 10px;
+    }
+    ion-input.user-name-input {
+        --background: #dddddd;
+        --padding-top: 10px;
+        --padding-bottom: 10px;
+        --padding-start: 5px;
+        --padding-end: 5px;
+        --placeholder-color: #A3A3A3;
+        --placeholder-font-weight: 600;
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+    
+}
