@@ -1,5 +1,8 @@
 {
   "name": "secured-data-transmission",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {},
+    "cordova": {}
+  },
   "type": "angular"
 }

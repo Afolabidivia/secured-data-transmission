@@ -1,4 +1,54 @@
-.welcome-card img {
-  max-height: 35vh;
-  overflow: hidden;
+.not-chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.chat-wrapper {
+  .chat-item {
+    border-bottom: 1px solid #eee;
+    border-top: 1px solid #eee;
+    margin-top: -1px;
+    border-radius: 0 !important;
+    padding-right: 11px;
+    overflow: hidden;
+    color: #000;
+    padding: 8px 9px;
+    display: flex;
+    cursor: pointer;
+    width: 100%;
+    .image-wrapper {
+      width: 20%;
+      .img-box {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 12px 0 0;
+        background-color: #eee;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+    .chat-metadata {
+      width: 80%;
+      .contact-name,
+      .last-message {
+        margin-bottom: 7px;
+        margin-top: 5px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        color: #222;
+        font-weight: 700;
+      }
+      .last-message {
+        font-weight: 400;
+        font-size: 13px;
+      }
+    }
+  }
 }
