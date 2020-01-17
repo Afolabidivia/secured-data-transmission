@@ -21,17 +21,14 @@ export class ProfilePage implements OnInit {
 
   ngOnInit() {
     this.isLoading = true;
-    
     this.authService.userId.subscribe(val => {
       this.userId = val;
       console.log(this.userId);
-      
       this.firebaseService.getUser(this.userId)
         .then(resp => {
           this.isLoading = false;
           this.userData = resp.val();
           console.log(resp.val());
-          
         });
     });
   }

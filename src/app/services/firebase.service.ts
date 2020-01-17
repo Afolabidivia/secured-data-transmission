@@ -46,6 +46,10 @@ export class FirebaseService {
     });
   }
 
+  getContact(userId: string, contactId: string) {
+    return firebase.database().ref(`contacts/${userId}/${contactId}`).once('value');
+  }
+
   fetchChats() {
     return firebase.database().ref(`/chats/`).once('value');
   }

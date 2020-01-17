@@ -8,31 +8,22 @@
 </ion-header>
 <ion-content class="page-wrapper">
   <div class="page__body">
-    <form #ctf="ngForm">
+    <form #ctf="ngForm" *ngIf="!isLoading">
       <ion-item>
         <ion-label position="stacked">Name</ion-label>
         <ion-input type="text" readonly [value]="userData.name"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Email</ion-label>
-        <ion-input type="text" readonly></ion-input>
+        <ion-input type="text" readonly [value]="userData.email"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Public Key</ion-label>
-        <ion-input type="text" 
-          name="transId"
-          ngModel
-          transIdCtrl="ngModel"
-          required></ion-input>
+        <ion-input type="text" readonly [value]="userData.pk"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Private Key</ion-label>
-        <ion-input type="password"
-          placeholder="*******"
-          name="pword"
-          ngModel
-          pwordCtrl="ngModel"
-          required></ion-input>
+        <ion-input type="password" readonly></ion-input>
       </ion-item>
     </form>
   </div>
