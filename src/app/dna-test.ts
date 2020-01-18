@@ -32,7 +32,8 @@ class DNATest {
     }
 
     public to8BitArray(keyBit: string) {
-        let asciiBits = (keyBit.length / 8) + 1;
+        // tslint:disable-next-line: prefer-const
+        let asciiBits: string[] = new Array((keyBit.length / 8) + 1) ;
         let idx = -1;
         for (let i = 0; i < keyBit.length; i++) {
             if ((i % 8) === 0 || i === 0) {
@@ -47,8 +48,8 @@ class DNATest {
     /*Optimize Key Bit to Match PlainBit Length By Expansion or Contraction*/
     public optimizeKeyBit(plainBit: string, keyBit: string) {
         let newKeyBit = keyBit;
-        const plainLmt = to8BitArray(plainBit).length;
-        const keyLmt = to8BitArray(keyBit).length;
+        const plainLmt = this.to8BitArray(plainBit).length;
+        const keyLmt = this.to8BitArray(keyBit).length;
         const noTime = Math.round((plainLmt / keyLmt));
         const remainder = (plainLmt % keyLmt);
         for (let i = 1; i < (noTime); i++) {
