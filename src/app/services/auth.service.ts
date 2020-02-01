@@ -7,6 +7,7 @@ import { Plugins } from '@capacitor/core';
 
 import { environment } from 'src/environments/environment';
 import { User } from '../auth/user.model';
+import { FirebaseService } from './firebase.service';
 
 export interface AuthResponseData {
    kind: string;
@@ -72,7 +73,10 @@ export class AuthService implements OnDestroy {
     );
   }
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private firebaseService: FirebaseService
+    ) { }
 
   autoLogin() {
     return from(Plugins.Storage.get({ key: 'authData' })).pipe(
@@ -133,6 +137,7 @@ export class AuthService implements OnDestroy {
   }
 
   logout() {
+    this.firebaseService.destroyContact();
     if (this.activeLogoutTimer) {
       clearTimeout(this.activeLogoutTimer);
     }

@@ -4,13 +4,18 @@ import { Observable, of } from 'rxjs';
 import { take, tap, switchMap } from 'rxjs/operators';
 
 import { AuthService } from '../services/auth.service';
+import { NavController } from '@ionic/angular';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthGuard implements CanLoad {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private navCtrl: NavController
+    ) {}
 
   canLoad(
     route: Route,
@@ -27,6 +32,7 @@ export class AuthGuard implements CanLoad {
       }),
       tap(isAuthenticated => {
         if (!isAuthenticated) {
+          // this.navCtrl.navigateRoot('/auth');
           this.router.navigateByUrl('/auth');
         }
       })

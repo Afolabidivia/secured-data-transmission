@@ -18,6 +18,15 @@
         #messageCtrl="ngModel"
         required></ion-textarea>
     </ion-item>
+    <div class="check-box">
+      <ion-label>share key</ion-label>
+      <ion-checkbox
+        ngModel
+        [(ngModel)]="isChecked$"
+        value
+        name="shKey"
+        #shKeyCtrl="ngModel"></ion-checkbox>
+    </div >
     <ion-button type="submit" [disabled]="!nmf.valid">start</ion-button>
   </form>
 </ion-content>

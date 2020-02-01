@@ -29,6 +29,18 @@
             float: right;
         }
     }
+    .key-not-shared {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        bottom: 0;
+        span {
+            padding: 8px;
+            background-color: #dddddd;
+            border: 1px solid #eeeeee;
+            border-radius: 3px;
+        }
+    }
     form {
         padding: 5px;
         display: flex;

@@ -4,6 +4,7 @@ import { NgForm } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
 import { PopoverController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { DnaTestService } from 'src/app/services/dna-test.service';
 
 @Component({
   selector: 'app-new-message',
@@ -11,78 +12,98 @@ import { Router } from '@angular/router';
   styleUrls: ['./new-message.component.scss'],
 })
 export class NewMessageComponent implements OnInit {
-  userData;
+  isChecked$ = false;
+  userInfo$;
+  userId$: string;
 
   constructor(
     private firebaseService: FirebaseService,
     private authService: AuthService,
     private popoverController: PopoverController,
     private router: Router,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private DNAService: DnaTestService
   ) { }
 
   ngOnInit() {
-    this.authService.userData.subscribe(val => {
-      this.userData = val;
-    });
+    this.userInfo$ = this.firebaseService.userInfo.value;
+    this.userId$ = this.firebaseService.userId.value;
   }
 
   onStartMessage(formData: NgForm) {
     const userEmail = formData.value.userEmail;
-    const message = formData.value.message;
-    let senderName;
+    const message = this.DNAService.encript(formData.value.message, this.userInfo$.pub);
+    const isKeyShared = formData.value.shKey;
 
-
-    this.firebaseService.getUser(this.userData.id)
-      .then(val => {
-        senderName = val.val().name;
-      });
     this.firebaseService.getAllUsers()
       .then(userRec => {
-        const users = userRec.val();
-        const userIds = Object.keys(users);
-        for (const user in users) {
-          if (users[user].email === userEmail && (userEmail !== this.userData.email)) {
-            this.popoverController.dismiss();
-            this.firebaseService.getContact(this.userData.id, user)
-              .then(resp => {
-                const userContact = resp.val();
-                if (!userContact) {
-                  this.firebaseService.fetchChats()
-                    .then(chat => {
-                      const chatId = (chat.val()) ? Object.keys(chat.val()).length + 1 : 1;
-                      this.firebaseService.startMessage({sender: this.userData.id, message});
-                      this.firebaseService.addContact(
-                        this.userData.id,
-                        user,
-                        {
-                          email: users[user].email,
-                          id: user,
-                          chat_id: chatId,
-                          last_message: message,
-                          name: users[user].name
-                        }
-                      );
-                      this.firebaseService.addContact(
-                        user,
-                        this.userData.id,
-                        {
-                          email: this.userData.email,
-                          id: this.userData.id,
-                          chat_id: chatId,
-                          last_message: message,
-                          name: senderName
-                        }
-                      );
-                    });
-                } else {
-                  this.router.navigateByUrl(`home/${user}/${userContact.chat_id}`);
-                }
-              });
-          } else {
-            this.showAlert('Email does not exist!');
-          }
+        let users = [];
+        let userEmails = [];
+        let index;
+        // tslint:disable-next-line: forin
+        for (const user in userRec.val()) {
+          const tempUser = {
+            id: user,
+            email: userRec.val()[user].email,
+            name: userRec.val()[user].name
+          };
+          userEmails.push(userRec.val()[user].email);
+          users.push(tempUser);
         }
+        // check if user exist
+        if (userEmails.indexOf(userEmail) < 0) {
+          this.showAlert('Email does not exist!');
+          return;
+        } else {
+          index = userEmails.indexOf(userEmail);
+        }
+        // check if user is not current user
+        if (userEmail === this.userInfo$.email) {
+          this.showAlert('This seems to be your email!');
+          return;
+        }
+
+        this.firebaseService.getContact(this.userId$, users[index].id)
+          .then(resp => {
+            const userContact = resp.val();
+            if (!userContact) {
+              this.firebaseService.fetchChats()
+                .then(chat => {
+                  const chatId = (chat.val()) ? Object.keys(chat.val()).length + 1 : 1;
+                  const lastMessage = {
+                    sender: this.userId$,
+                    message
+                  };
+                  this.firebaseService.startMessage({sender: this.userId$, message});
+                  this.firebaseService.addContact(
+                    this.userId$,
+                    users[index].id,
+                    {
+                      email: users[index].email,
+                      id: users[index].id,
+                      chat_id: chatId,
+                      last_message: lastMessage,
+                      name: users[index].name,
+                      pk: this.userInfo$.priv
+                    }
+                  );
+                  this.firebaseService.addContact(
+                    users[index].id,
+                    this.userId$,
+                    {
+                      email: this.userInfo$.email,
+                      id: this.userId$,
+                      chat_id: chatId,
+                      last_message: lastMessage,
+                      name: this.userInfo$.name
+                    }
+                  );
+                });
+            } else {
+              this.router.navigateByUrl(`home/${users[index].id}/${userContact.chat_id}`);
+            }
+            this.closePopover();
+          });
       });
   }
 

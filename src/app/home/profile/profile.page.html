@@ -19,11 +19,11 @@
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Public Key</ion-label>
-        <ion-input type="text" readonly [value]="userData.pk"></ion-input>
+        <ion-input type="password" readonly [value]="userData.pub"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Private Key</ion-label>
-        <ion-input type="password" readonly></ion-input>
+        <ion-input type="password" readonly [value]="userData.priv"></ion-input>
       </ion-item>
     </form>
   </div>

@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 
-import { LoadingController, AlertController } from '@ionic/angular';
+import { LoadingController, AlertController, NavController } from '@ionic/angular';
 
 import { AuthService, AuthResponseData } from '../services/auth.service';
 import { Observable } from 'rxjs';
 import { FirebaseService } from '../services/firebase.service';
+import { DnaTestService } from '../services/dna-test.service';
 
 @Component({
   selector: 'app-auth',
@@ -22,13 +23,15 @@ export class AuthPage implements OnInit {
     private router: Router,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
-    private firebaseService: FirebaseService
+    private firebaseService: FirebaseService,
+    private DNAService: DnaTestService,
+    private navCtrl: NavController
   ) { }
 
   ngOnInit() {
   }
 
-  authenticate(email: string, password: string, name?: string, pubKey?: string) {
+  authenticate(email: string, password: string, name?: string, pubKey?: string, privKey?: string) {
     this.isLoading = true;
     this.loadingCtrl
       .create({ keyboardClose: true, message: 'Logging in...' })
@@ -42,18 +45,19 @@ export class AuthPage implements OnInit {
         }
         authObs.subscribe(
           resData => {
-            console.log(resData);
             if (!this.isLogin) {
               const userData = {
                 email: resData.email,
                 name,
-                pk: pubKey
+                pub: pubKey,
+                priv: privKey
               };
               this.firebaseService.addUser(resData.localId, userData);
             }
             this.isLoading = false;
             loadingEl.dismiss();
-            this.router.navigateByUrl('/home');
+            this.navCtrl.navigateRoot('/home');
+            // this.router.navigateByUrl('/home');
           },
           errRes => {
             loadingEl.dismiss();
@@ -82,10 +86,14 @@ export class AuthPage implements OnInit {
     }
     const email = form.value.email;
     const password = form.value.password;
-    const name = form.value.userName;
-    const pk = form.value.pubKey;
-
-    this.authenticate(email, password, name, pk);
+    if (!this.isLogin) {
+      const name = form.value.userName;
+      const pk = form.value.pubKey;
+      const privKey = this.DNAService.privateKey(pk);
+      this.authenticate(email, password, name, pk, privKey);
+    } else {
+      this.authenticate(email, password);
+    }
     form.reset();
   }
 

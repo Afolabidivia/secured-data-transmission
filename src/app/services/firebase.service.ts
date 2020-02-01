@@ -12,6 +12,8 @@ export class FirebaseService {
   firebaseData = new BehaviorSubject(null);
   userContacts = new BehaviorSubject(null);
   messages = new BehaviorSubject(null);
+  userId = new BehaviorSubject<string>(null);
+  userInfo = new BehaviorSubject(null);
 
   constructor() { }
 
@@ -27,7 +29,6 @@ export class FirebaseService {
     this.contactRef = firebase.database().ref(`/contacts/${user}`);
     this.contactRef.on('value', contactSnapShot => {
       this.userContacts.next(contactSnapShot.val());
-      console.log(contactSnapShot.val());
     });
   }
 
@@ -48,6 +49,10 @@ export class FirebaseService {
 
   getContact(userId: string, contactId: string) {
     return firebase.database().ref(`contacts/${userId}/${contactId}`).once('value');
+  }
+
+  updateContact(userId: string, contactId: string, privateKey: string) {
+    return firebase.database().ref(`contacts/${userId}/${contactId}`).update({pk: privateKey});
   }
 
   fetchChats() {
@@ -78,8 +83,12 @@ export class FirebaseService {
             const mCount = (m.val()) ? Object.keys(m.val()).length + 1 : 1;
             firebase.database().ref(`chats/${chatId}/${mCount}`).set(payload)
               .then((data) => {
-                this.updateLastMessage(sender, receiver, {last_message: payload.message});
-                this.updateLastMessage(receiver, sender, {last_message: payload.message});
+                const lastMessage = {
+                  sender,
+                  message: payload.message
+                };
+                this.updateLastMessage(sender, receiver, {last_message: lastMessage});
+                this.updateLastMessage(receiver, sender, {last_message: lastMessage});
               }).catch(error => {
             });
           });
@@ -98,7 +107,15 @@ export class FirebaseService {
   }
 
   destroyMessages() {
-    this.messageRef.off();
+    if (this.messageRef) {
+      this.messageRef.off();
+    }
+  }
+
+  destroyContact() {
+    if (this.contactRef) {
+      this.contactRef.off();
+    }
   }
 
   updateLastMessage(sender: string, receiver: string, payload) {
