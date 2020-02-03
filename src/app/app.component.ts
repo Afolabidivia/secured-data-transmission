@@ -14,7 +14,7 @@ import { take } from 'rxjs/operators';
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss']
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
   public appPages = [
     {
       title: 'Home',
@@ -27,8 +27,6 @@ export class AppComponent implements OnInit, OnDestroy {
       icon: 'contact'
     }
   ];
-  private authSub: Subscription;
-  private previousAuthState = false;
 
   constructor(
     private platform: Platform,
@@ -51,41 +49,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.authSub = this.authService.userIsAuthenticated.subscribe(isAuth => {
-      if (!isAuth && this.previousAuthState !== isAuth) {
-        this.router.navigateByUrl('/auth');
-      } else {
-        // this.router.navigateByUrl('/home');
-      }
-      this.previousAuthState = isAuth;
-    });
-    Plugins.App.addListener(
-      'appStateChange',
-      this.checkAuthOnResume.bind(this)
-    );
+    this.authService.checkToken();
   }
 
   onLogout() {
+    console.log(1);
+    
     this.authService.logout();
   }
 
-  ngOnDestroy() {
-    if (this.authSub) {
-      this.authSub.unsubscribe();
-    }
-    // Plugins.App.removeListener('appStateChange', this.checkAuthOnResume);
-  }
-
-  private checkAuthOnResume(state: AppState) {
-    if (state.isActive) {
-      this.authService
-        .autoLogin()
-        .pipe(take(1))
-        .subscribe(success => {
-          if (!success) {
-            this.onLogout();
-          }
-        });
-    }
-  }
 }

@@ -12,7 +12,6 @@ export class FirebaseService {
   firebaseData = new BehaviorSubject(null);
   userContacts = new BehaviorSubject(null);
   messages = new BehaviorSubject(null);
-  userId = new BehaviorSubject<string>(null);
   userInfo = new BehaviorSubject(null);
 
   constructor() { }

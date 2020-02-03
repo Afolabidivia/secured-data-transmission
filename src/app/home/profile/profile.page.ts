@@ -21,9 +21,10 @@ export class ProfilePage implements OnInit {
 
   ngOnInit() {
     this.isLoading = true;
-    this.authService.userId.subscribe(val => {
-      this.userId = val;
-      console.log(this.userId);
+    this.authService.user.subscribe(user => {
+      console.log(user);
+      
+      this.userId = user.id;
       this.firebaseService.getUser(this.userId)
         .then(resp => {
           this.isLoading = false;

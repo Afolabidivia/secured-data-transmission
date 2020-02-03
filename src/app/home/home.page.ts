@@ -26,9 +26,8 @@ export class HomePage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.authService.userId.subscribe(val => {
-      this.userId = val;
-      this.firebaseService.userId.next(this.userId);
+    this.authService.user.subscribe(val => {
+      this.userId = val.id;
       // Get user info
       this.firebaseService.getUser(this.userId)
         .then(resp => {

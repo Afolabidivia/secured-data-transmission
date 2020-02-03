@@ -31,6 +31,14 @@ export class AuthPage implements OnInit {
   ngOnInit() {
   }
 
+  ionViewWillEnter() {
+    this.authService.loginState.subscribe(res => {
+      if (res) {
+        this.router.navigateByUrl('/home');
+      }
+    });
+  }
+
   authenticate(email: string, password: string, name?: string, pubKey?: string, privKey?: string) {
     this.isLoading = true;
     this.loadingCtrl

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanLoad, Route, UrlSegment, Router } from '@angular/router';
+import { CanLoad, Route, UrlSegment } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { take, tap, switchMap } from 'rxjs/operators';
 
@@ -13,7 +13,6 @@ import { NavController } from '@ionic/angular';
 export class AuthGuard implements CanLoad {
   constructor(
     private authService: AuthService,
-    private router: Router,
     private navCtrl: NavController
     ) {}
 
@@ -21,19 +20,13 @@ export class AuthGuard implements CanLoad {
     route: Route,
     segments: UrlSegment[]
   ): Observable<boolean> | Promise<boolean> | boolean {
-    return this.authService.userIsAuthenticated.pipe(
+    return this.authService.loginState.pipe(
       take(1),
       switchMap(isAuthenticated => {
         if (!isAuthenticated) {
-          return this.authService.autoLogin();
+          this.navCtrl.navigateRoot('/auth');
         } else {
           return of(isAuthenticated);
-        }
-      }),
-      tap(isAuthenticated => {
-        if (!isAuthenticated) {
-          // this.navCtrl.navigateRoot('/auth');
-          this.router.navigateByUrl('/auth');
         }
       })
     );

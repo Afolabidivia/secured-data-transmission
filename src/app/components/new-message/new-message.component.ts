@@ -26,8 +26,10 @@ export class NewMessageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.userInfo$ = this.firebaseService.userInfo.value;
-    this.userId$ = this.firebaseService.userId.value;
+    this.firebaseService.userInfo.subscribe(value => {
+      this.userInfo$ = value;
+    });
+    this.userId$ = this.authService.user.value.id;
   }
 
   onStartMessage(formData: NgForm) {
@@ -74,18 +76,22 @@ export class NewMessageComponent implements OnInit {
                     sender: this.userId$,
                     message
                   };
+                  let userCont = {
+                    email: users[index].email,
+                    id: users[index].id,
+                    chat_id: chatId,
+                    last_message: lastMessage,
+                    name: users[index].name,
+                  };
+                  if (isKeyShared) {
+                    // tslint:disable-next-line: no-string-literal
+                    userCont['pk'] = this.userInfo$.priv;
+                  }
                   this.firebaseService.startMessage({sender: this.userId$, message});
                   this.firebaseService.addContact(
                     this.userId$,
                     users[index].id,
-                    {
-                      email: users[index].email,
-                      id: users[index].id,
-                      chat_id: chatId,
-                      last_message: lastMessage,
-                      name: users[index].name,
-                      pk: this.userInfo$.priv
-                    }
+                    userCont
                   );
                   this.firebaseService.addContact(
                     users[index].id,

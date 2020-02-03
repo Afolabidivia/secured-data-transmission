@@ -30,7 +30,7 @@ export class ChatsPage implements OnInit, AfterViewInit, OnDestroy {
     ) { }
 
   ngOnInit() {
-    this.userId$ = this.firebaseService.userId.value;
+    this.userId$ = this.authService.user.value.id;
     this.route.paramMap.subscribe(paramMap => {
       if (!paramMap.has('userId') && !paramMap.has('chatId')) {
         this.router.navigateByUrl('/');
