@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { FirebaseService } from '../services/firebase.service';
 import { AuthService } from '../services/auth.service';
 import { PopoverController } from '@ionic/angular';
@@ -11,7 +11,7 @@ import { DnaTestService } from '../services/dna-test.service';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, AfterViewInit {
   userId: string;
   isLoadingContacts = true;
   userContacts = [];
@@ -27,30 +27,32 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     this.authService.user.subscribe(val => {
-      this.userId = val.id;
-      // Get user info
-      this.firebaseService.getUser(this.userId)
-        .then(resp => {
-          this.userInfo$ = resp.val();
-          this.firebaseService.userContacts.subscribe(contacts => {
-            this.isLoadingContacts = false;
-            if (contacts) {
-              this.userContacts = [];
-              const tempContacts = Object.values(contacts);
-              // tslint:disable-next-line: prefer-for-of
-              for (let i = 0; i < tempContacts.length; i++) {
-                // tslint:disable-next-line: no-string-literal
-                this.userContacts.push(tempContacts[i]);
-                this.decodeMessage(
-                  i,
-                  tempContacts[i]['last_message'].sender,
-                  tempContacts[i]['last_message'].message);
-              }
-            }
+      if (val) {
+        this.userId = val.id;
+        this.firebaseService.syncContacts(this.userId);
+        // Get user info
+        this.firebaseService.getUser(this.userId)
+          .then(resp => {
+            this.userInfo$ = resp.val();
+            this.firebaseService.userInfo.next(resp.val());
           });
-          this.firebaseService.userInfo.next(resp.val());
+      }
+    });
+  }
+
+  ngAfterViewInit() {
+    this.firebaseService.userContacts.subscribe(contacts => {
+      this.isLoadingContacts = false;
+      if (contacts) {
+        this.userContacts = [];
+        this.userContacts = Object.keys(contacts).map((el) => {
+          this.decodeMessage(
+            contacts[el]['last_message'].sender,
+            contacts[el]['last_message'].message,
+          );
+          return contacts[el];
         });
-      this.firebaseService.syncContacts(this.userId);
+      }
     });
   }
 
@@ -66,22 +68,24 @@ export class HomePage implements OnInit {
     this.router.navigateByUrl(`/home/${url}`);
   }
 
-  decodeMessage(index: number, sender: string, message: string) {
+  decodeMessage(sender: string, message: string, index?: number ) {
     if (this.userInfo$) {
       if (sender === this.userId) {
-        this.userContacts[index]['dec_message'] = this.DNAService.decryption(message, this.userInfo$.pub, false);
+        this.userContacts['dec_message'] = this.DNAService.decryption(message, this.userInfo$.pub, false);
+        // this.userContacts[index]['dec_message'] = this.DNAService.decryption(message, this.userInfo$.pub, false);
         // return this.DNAService.decryption(message, this.userInfo$.pub, false);
       } else {
-        this.firebaseService.getContact(sender, this.userId).then(resp => {
-          if (resp.val()) {
-            if (resp.val().pk) {
-              this.userContacts[index]['dec_message'] = this.DNAService.decryption(message, resp.val().pk, true);
-              // return this.DNAService.decryption(message, resp.val().pk, true);
-            } else {
-              this.userContacts[index]['dec_message'] = message;
-            }
-          }
-        });
+        this.userContacts['dec_message'] = message;
+        // this.firebaseService.getContact(sender, this.userId).then(resp => {
+        //   if (resp.val()) {
+        //     if (resp.val().pk) {
+        //       this.userContacts[index]['dec_message'] = this.DNAService.decryption(message, resp.val().pk, true);
+        //       // return this.DNAService.decryption(message, resp.val().pk, true);
+        //     } else {
+        //       this.userContacts[index]['dec_message'] = message;
+        //     }
+        //   }
+        // });
       }
     }
   }

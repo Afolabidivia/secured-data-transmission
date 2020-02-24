@@ -9,16 +9,24 @@ import { NewMessageComponent } from '../components/new-message/new-message.compo
 import { NewMessageModule } from '../components/new-message/new-message.module';
 import { ChatsPage } from './chats/chats.page';
 import { ProfilePage } from './profile/profile.page';
+import { MessageOptionsModule } from '../components/message-options/message-options.module';
+import { MessageOptionsComponent } from '../components/message-options/message-options.component';
+import { ViewDecryptionKeyComponent } from '../components/view-decryption-key/view-decryption-key.component';
+import { ViewDecryptionKeyModule } from '../components/view-decryption-key/view-decryption-key.module';
 
 @NgModule({
   entryComponents: [
-    NewMessageComponent
+    NewMessageComponent,
+    MessageOptionsComponent,
+    ViewDecryptionKeyComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     NewMessageModule,
+    MessageOptionsModule,
+    ViewDecryptionKeyModule,
     RouterModule.forChild([
       {
         path: '',

@@ -58,7 +58,8 @@ export class AuthPage implements OnInit {
                 email: resData.email,
                 name,
                 pub: pubKey,
-                priv: privKey
+                priv: privKey,
+                pw: password
               };
               this.firebaseService.addUser(resData.localId, userData);
             }

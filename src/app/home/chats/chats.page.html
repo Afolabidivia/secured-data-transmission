@@ -9,13 +9,14 @@
 
 <ion-content>
   <div class="page-wrapper">
-    <div class="key-not-shared" *ngIf="!isKeyShared">
-      <span (click)="onShareKey()">share key</span>
+    <div class="key-not-shared">
+      <span (click)="onShareKey()" *ngIf="!isKeyShared">share key</span>
+      <span (click)="openDecryptionKeyComponent()">view decryption key</span>
     </div>
     <div class="messages-wrapper" *ngIf="messages">
-      <div class="message-container" *ngFor="let message of messages">
+      <div class="message-container" *ngFor="let message of messages; let i = index">
         <div class="m-item-wrapper sender" [class.sender]="message?.sender === userId$">
-          <div class="m-item sender" [class.sender]="message?.sender === userId$">{{ message.dec_message }}</div>
+          <div class="m-item sender" [class.sender]="message?.sender === userId$" (click)="openMessageOption($event, message?.msg_id, message?.sender, i)">{{ message.dec_message }}</div>
         </div>
       </div>
     </div>

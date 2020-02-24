@@ -61,10 +61,11 @@ export class FirebaseService {
   startMessage(payload) {
     firebase.database().ref(`/chats/`).once('value')
       .then(chat => {
-        const chatsLen = (chat.val()) ? Object.keys(chat.val()).length + 1 : 1;
+        const chatsLen = (chat.val()) ? Object.keys(chat.val()).length : 0;
         firebase.database().ref(`/chats/${chatsLen}`).once('value')
           .then(m => {
-            const mCount = (m.val()) ? Object.keys(m.val()).length + 1 : 1;
+            const mCount = (m.val()) ? Object.keys(m.val()).length : 0;
+            payload.msg_id = mCount;
             firebase.database().ref(`chats/${chatsLen}/${mCount}`).set(payload)
               .then((data) => {
               }).catch(error => {
@@ -79,12 +80,14 @@ export class FirebaseService {
         const chatId = res.val().chat_id;
         firebase.database().ref(`/chats/${chatId}`).once('value')
           .then(m => {
-            const mCount = (m.val()) ? Object.keys(m.val()).length + 1 : 1;
+            const mCount = (m.val()) ? Object.keys(m.val()).length : 0;
+            payload.msg_id = mCount;
             firebase.database().ref(`chats/${chatId}/${mCount}`).set(payload)
               .then((data) => {
                 const lastMessage = {
                   sender,
-                  message: payload.message
+                  message: payload.message,
+                  msg_id: mCount
                 };
                 this.updateLastMessage(sender, receiver, {last_message: lastMessage});
                 this.updateLastMessage(receiver, sender, {last_message: lastMessage});
@@ -103,6 +106,10 @@ export class FirebaseService {
       }
       this.messages.next(null);
     });
+  }
+
+  deleteMessage(chatId, messageId: number) {
+    return firebase.database().ref(`chats/${chatId}/${messageId}`).remove();
   }
 
   destroyMessages() {

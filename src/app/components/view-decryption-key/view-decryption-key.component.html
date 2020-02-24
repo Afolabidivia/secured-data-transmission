@@ -1,0 +1,13 @@
+<ion-content padding>
+  <form #df="ngForm" (ngSubmit)="onSubmit(df)" *ngIf="!showDecKey">
+    <ion-input 
+      placeholder="Enter Your Password"
+      type="password"
+      name="pw"
+      ngModel
+      required
+      pwCtrl="ngModel"></ion-input>
+    <ion-button type="submit" [disabled]="!df.valid">show key</ion-button>
+  </form>
+  <div *ngIf="showDecKey" class="selectable">{{ passedData.decKey }}</div>
+</ion-content>

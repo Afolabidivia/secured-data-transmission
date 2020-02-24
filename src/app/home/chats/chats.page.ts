@@ -4,7 +4,9 @@ import { FirebaseService } from 'src/app/services/firebase.service';
 import { NgForm } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
 import { DnaTestService } from 'src/app/services/dna-test.service';
-import { NavController } from '@ionic/angular';
+import { NavController, PopoverController, AlertController } from '@ionic/angular';
+import { MessageOptionsComponent } from 'src/app/components/message-options/message-options.component';
+import { ViewDecryptionKeyComponent } from 'src/app/components/view-decryption-key/view-decryption-key.component';
 
 @Component({
   selector: 'app-chats',
@@ -19,6 +21,8 @@ export class ChatsPage implements OnInit, AfterViewInit, OnDestroy {
   userContact$;
   messages;
   isKeyShared: boolean;
+  isUserKeyshared: boolean;
+  decryptionKey: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -26,7 +30,9 @@ export class ChatsPage implements OnInit, AfterViewInit, OnDestroy {
     private firebaseService: FirebaseService,
     private authService: AuthService,
     private DNAService: DnaTestService,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private popoverController: PopoverController,
+    private alertCtrl: AlertController
     ) { }
 
   ngOnInit() {
@@ -55,14 +61,26 @@ export class ChatsPage implements OnInit, AfterViewInit, OnDestroy {
         }
         this.userInfo$ = val;
         this.firebaseService.getContact(this.userId$, this.contactId$).then(resp => {
-         if (resp.val()) {
+          if (resp.val()) {
+            if (resp.val().pk) {
+              this.isKeyShared = true;
+              return;
+            }
+            this.isKeyShared = false;
+          }
+        });
+      });
+
+      this.firebaseService.getContact(this.contactId$, this.userId$).then(resp => {
+        if (resp.val()) {
           if (resp.val().pk) {
-            this.isKeyShared = true;
+            this.decryptionKey = resp.val().pk;
+            this.isUserKeyshared = true;
             return;
           }
-          this.isKeyShared = false;
-         }
-        });
+          this.isUserKeyshared = false;
+
+        }
       });
 
       this.firebaseService.syncMessages(this.chatId);
@@ -104,21 +122,45 @@ export class ChatsPage implements OnInit, AfterViewInit, OnDestroy {
       this.messages[index]['dec_message'] = this.DNAService.decryption(message, this.userInfo$.pub, false);
       // return this.DNAService.decryption(message, this.userInfo.pub, false);
     } else {
-      this.firebaseService.getContact(this.contactId$, this.userId$).then(resp => {
-        if (resp.val()) {
-          if (resp.val().pk) {
-            // tslint:disable-next-line: no-string-literal
-            this.messages[index]['dec_message'] = this.DNAService.decryption(message, resp.val().pk, true);
-            return;
-            // return this.DNAService.decryption(message, resp.val().pk, true);
-          } else {
-            // tslint:disable-next-line: no-string-literal
-            this.messages[index]['dec_message'] = message;
-          }
-        }
-      });
+      this.messages[index]['dec_message'] = message;
+      // this.firebaseService.getContact(this.contactId$, this.userId$).then(resp => {
+      //   if (resp.val()) {
+      //     if (resp.val().pk) {
+      //       // tslint:disable-next-line: no-string-literal
+      //       this.messages[index]['dec_message'] = this.DNAService.decryption(message, resp.val().pk, true);
+      //       return;
+      //       // return this.DNAService.decryption(message, resp.val().pk, true);
+      //     } else {
+      //       // tslint:disable-next-line: no-string-literal
+      //       this.messages[index]['dec_message'] = message;
+      //     }
+      //   }
+      // });
     }
   }
+
+  async openMessageOption(ev: any, msgId: number, sender: string, index: number) {
+    const popover = await this.popoverController.create({
+      component: MessageOptionsComponent,
+      // translucent: true,
+      event: ev,
+      componentProps: {
+        chatId: this.chatId,
+        messageId: msgId,
+        sender
+      }
+    });
+    popover.onDidDismiss().then(res => {
+      if (res.data) {
+        this.messages[index]['dec_message'] = this.DNAService.decryption(this.messages[index].message, res.data.dec, true);
+      }
+    });
+    return await popover.present();
+  }
+
+  // decryptMessage() {
+
+  // }
 
   onShareKey() {
     this.firebaseService.updateContact(this.userId$, this.contactId$, this.userInfo$.priv)
@@ -127,8 +169,32 @@ export class ChatsPage implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
+  async openDecryptionKeyComponent() {
+    if (!this.isUserKeyshared) {
+      this.showAlert('This user does not share his/her decryption key wit you');
+      return;
+    }
+    const popover = await this.popoverController.create({
+      component: ViewDecryptionKeyComponent,
+      componentProps: {
+        decKey: this.decryptionKey
+      }
+    });
+    return await popover.present();
+  }
+
   ngOnDestroy() {
     this.firebaseService.destroyMessages();
+  }
+
+  private showAlert(message: string) {
+    this.alertCtrl
+      .create({
+        header: 'Alert',
+        message,
+        buttons: ['Okay']
+      })
+      .then(alertEl => alertEl.present());
   }
 
 }

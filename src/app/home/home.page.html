@@ -19,11 +19,11 @@
   <div class="chat-wrapper" *ngIf="!isLoadingContacts && userContacts">
     <div class="chat-item" *ngFor="let c of userContacts" (click)="openChat(c.id+'/'+c.chat_id)">
       <div class="image-wrapper">
-        <div class="img-box">{{ c.name.substring(0, 1) | uppercase }}</div>
+        <div class="img-box">{{ c?.name.substring(0, 1) | uppercase }}</div>
       </div>
       <div class="chat-metadata">
-        <div class="contact-name">{{ c.name }} ({{ c.email }})</div>
-        <div class="last-message">{{ c.dec_message }}</div>
+        <div class="contact-name">{{ c?.name }} ({{ c?.email }})</div>
+        <div class="last-message">{{ c?.last_message.message }}</div>
       </div>
       
     </div>

@@ -71,7 +71,7 @@ export class NewMessageComponent implements OnInit {
             if (!userContact) {
               this.firebaseService.fetchChats()
                 .then(chat => {
-                  const chatId = (chat.val()) ? Object.keys(chat.val()).length + 1 : 1;
+                  const chatId = (chat.val()) ? Object.keys(chat.val()).length : 0;
                   const lastMessage = {
                     sender: this.userId$,
                     message
